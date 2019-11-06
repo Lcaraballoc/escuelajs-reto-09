@@ -5,7 +5,7 @@ const receipt = '../assets/receipt.pdf'
 
 const platziStore = (app) => {
   const router = express.Router();
-  app.use('/api/products', router);
+  app.use('/api/', router);
 
   const productService = new ProductService();
 
@@ -18,12 +18,19 @@ const platziStore = (app) => {
     res.sendFile(file);
   });
 
-  router.get('/', async (req, res, next) => {
-    const storeProducts = await productService.getProducts()
-    res.status(200).json(storeProducts);
+  router.get('/products', async (req, res, next) => {
+    try {
+      const storeProducts = await productService.getProducts()
+      res.status(200).json({
+        data: storeProducts,
+        message: 'products listed',
+      });
+    } catch (err) {
+      next(err);
+    }
   });
 
-  router.post('/', async function (req, res, next) {
+  router.post('/products', async function (req, res, next) {
     const { body: product } = req;
     try {
       const createProductId = await productService.createProduct({ product });
@@ -36,7 +43,7 @@ const platziStore = (app) => {
     }
   });
 
-  router.get("/:productId", async function (req, res, next) {
+  router.get("/products/:productId", async function (req, res, next) {
     const { productId } = req.params;
     try {
       const products = await productService.getProduct({ productId })
@@ -51,7 +58,7 @@ const platziStore = (app) => {
     }
   });
 
-  router.put("/:productId", async function (req, res, next) {
+  router.put("/products/:productId", async function (req, res, next) {
     const { productId } = req.params;
     const { body: product } = req;
     try {
@@ -70,7 +77,7 @@ const platziStore = (app) => {
     }
   });
 
-  router.delete("/:productId", async function (req, res, next) {
+  router.delete("/products/:productId", async function (req, res, next) {
     const { productId } = req.params;
     try {
       const deletedProductId = await productService.deleteProduct({ productId })
